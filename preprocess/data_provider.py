@@ -40,7 +40,7 @@ def  load_images(images_file_path, batch_size, resize_size=256, is_train=True, c
             PlaceCrop(crop_size, start_center, start_center),
             transforms.ToTensor(),
             normalize])
-        images = ImageList(open(images_file_path).readlines(), transform=transformer)
+        images = ImageList(list(map(lambda x: '/content' + x[2:], open(images_file_path).readlines())), transform=transformer)
         images_loader = util_data.DataLoader(images, batch_size=batch_size, shuffle=False, num_workers=4)
     else:
         if is_cen:
@@ -56,7 +56,7 @@ def  load_images(images_file_path, batch_size, resize_size=256, is_train=True, c
                   transforms.RandomHorizontalFlip(),
                   transforms.ToTensor(),
                   normalize])
-        images = ImageList(open(images_file_path).readlines(), transform=transformer)
+        images = ImageList(list(map(lambda x: '/content' + x[2:], open(images_file_path).readlines())), transform=transformer)
         images_loader = util_data.DataLoader(images, batch_size=batch_size, shuffle=True, num_workers=4)
     return images_loader
 
