@@ -109,7 +109,7 @@ class UJDA(object):
 
     def vat(self, inputs, radius):
         eps = Variable(torch.randn(inputs.data.size()).cuda())
-        eps_norm = 1e-6 *(eps/torch.norm(eps,dim=(2,3),keepdim=True))
+        eps_norm = 1e-6 *(eps/torch.norm(eps, p=2, dim=(2,3),keepdim=True))
         eps = Variable(eps_norm.cuda(),requires_grad=True)
         _, outputs_classifier1, _, _ = self.c_net(inputs)
         _, outputs_classifier2, _, _ = self.c_net(inputs + eps)
