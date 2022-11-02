@@ -164,8 +164,8 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
                     eval_result_s = evaluate(model_instance, test_source_loader)
                     eval_result_t = evaluate(model_instance, test_target_loader)
 
-                    #save_features(model_instance, test_source_loader, 'source_only')
-                    #save_features(model_instance, test_target_loader, 'target_only')
+                    save_features(model_instance, test_source_loader, 'source_only')
+                    save_features(model_instance, test_target_loader, 'target_only')
 
                     print('\n classifier_loss: {:.4f}, joint1_loss:{:.4f}, joint2_loss:{:.4f}, val acc_s: {:.4f}, val acc_t: {:.4f}'.format(
                             classifier_loss, joint1_loss, joint2_loss, eval_result_s['accuracy'], eval_result_t['accuracy']))
@@ -252,8 +252,8 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
                 eval_result = evaluate(model_instance, test_target_loader)
                 if eval_result['accuracy'] > best_acc:
                     best_acc = eval_result['accuracy']
-                    #save_features(model_instance, test_source_loader, 'source')
-                    #save_features(model_instance, test_target_loader, 'target')
+                    save_features(model_instance, test_source_loader, 'source')
+                    save_features(model_instance, test_target_loader, 'target')
                 print(
                     '\n joints1_loss: {:.4f}, joints2_loss:{:.4f}, jointt1_loss:{:.4f}, jointt2_loss:{:.4f}, loss_dis_s: {:.4f}, loss_dis_t: {:.4f}, current accuracy : {:.4f}, best accuracy:{}'.format(
                         joints1_loss, joints2_loss, jointt1_loss, jointt2_loss, loss_dis_s, loss_dis_t, eval_result['accuracy'], best_acc))
@@ -328,5 +328,5 @@ if __name__ == '__main__':
                                 init_lr=cfg.init_lr)
 
     train(model_instance, train_source_loader, train_target_loader, test_target_loader, test_source_loader, group_ratios,
-              max_iter=30000, optimizer=optimizer, eval_interval=50, lr_scheduler = lr_scheduler)
+              max_iter=10000, optimizer=optimizer, eval_interval=50, lr_scheduler = lr_scheduler)
 
