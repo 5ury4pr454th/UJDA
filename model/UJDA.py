@@ -109,8 +109,9 @@ class UJDA(object):
         # maximum mean discrepancy
         if kind == "mmd":
             delta = torch.abs(torch.squeeze(out1) - torch.squeeze(out2))
+            batch_shape = delta.shape[0]
             try:
-                dot_product = torch.bmm(delta.view(16, 1, -1), delta.view(16, -1, 1))
+                dot_product = torch.bmm(delta.view(batch_shape, 1, -1), delta.view(batch_shape, -1, 1))
                 result = torch.mean(dot_product)
                 return result
             except:
