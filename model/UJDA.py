@@ -104,15 +104,23 @@ class UJDA(object):
         if self.use_gpu:
             self.c_net = self.c_net.cuda()
 
-    def discrepancy(self, out1, out2, kind = "def", log_target = True, reduction = "mean"):
+    def discrepancy(self, out1, out2, kind = "mmd", log_target = True, reduction = "mean"):
         
         # maximum mean discrepancy
         if kind == "mmd":
             delta = torch.abs(torch.squeeze(out1) - torch.squeeze(out2))
-            return torch.dot(delta, delta)
+            try:
+                dot_product = torch.dot(delta, delta)
+                result = torch.mean(dot_product)
+                return result
+            except:
+                print("mmd gone wrong")
+                print("delta shape = ", delta.shape)
+                print("dot shape = ", dot_product.shape)
         
         # Kullback-Leibler divergence
         elif kind == "kld":
+            
             if not log_target: # default
                 loss_pointwise = out1 * (out1.log() - out2)
             else:
@@ -129,8 +137,7 @@ class UJDA(object):
         # default
         else:
             return torch.mean(torch.abs(F.softmax(out1, dim =1) - F.softmax(out2, dim = 1)))
-        
-
+    
     def vat(self, inputs, radius):
         eps = Variable(torch.randn(inputs.data.size()).cuda())
         eps_norm = 1e-6 *(eps/torch.norm(eps, p=2, dim=(2,3),keepdim=True))
