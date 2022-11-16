@@ -111,7 +111,7 @@ class UJDA(object):
             delta = torch.abs(torch.squeeze(out1) - torch.squeeze(out2))
             batch_shape = delta.shape[0]
             dot_product = torch.bmm(delta.view(batch_shape, 1, -1), delta.view(batch_shape, -1, 1))
-            result = torch.clamp(torch.mean(dot_product), min = 0, max = 100)
+            result = torch.clamp(torch.nn.functional.normalize(dot_product), min = 0, max = 100)
             return result
         
         # Kullback-Leibler divergence
