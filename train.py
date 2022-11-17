@@ -105,7 +105,7 @@ def save_features(model_instance, input_loader, filename):
 
 
 def train(model_instance, train_source_loader, train_target_loader, test_target_loader, test_source_loader, group_ratios,
-          max_iter, optimizer, eval_interval, lr_scheduler, num_k = 4, iter_classifier = 5000):
+          max_iter, optimizer, eval_interval, lr_scheduler, num_k = 4, iter_classifier = 100):
     model_instance.set_train(True)
     print("start train...")
     writer = SummaryWriter()
@@ -328,5 +328,5 @@ if __name__ == '__main__':
                                 init_lr=cfg.init_lr)
 
     train(model_instance, train_source_loader, train_target_loader, test_target_loader, test_source_loader, group_ratios,
-              max_iter=10000, optimizer=optimizer, eval_interval=50, lr_scheduler = lr_scheduler)
+              max_iter=100, optimizer=optimizer, eval_interval=10, lr_scheduler = lr_scheduler)
 
