@@ -117,7 +117,7 @@ class UJDA(object):
         if kind == "corr":
            batch_shape = out1.shape[0]
            output_shape = out1.shape[1]
-           product = torch.mean(torch.bmm(out1.view(batch_shape, -1, 1), out2.view(batch_shape, -1, 1)), axis=0)
+           product = torch.mean(torch.bmm(out1.view(batch_shape, -1, 1), out2.view(batch_shape, 1, -1)), axis=0)
            return torch.norm(product)
           
         # Kullback-Leibler divergence
