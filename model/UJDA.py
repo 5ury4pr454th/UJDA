@@ -104,7 +104,7 @@ class UJDA(object):
         if self.use_gpu:
             self.c_net = self.c_net.cuda()
 
-    def discrepancy(self, out1, out2, kind = "mmd", log_target = True, reduction = "mean"):
+    def discrepancy(self, out1, out2, kind = "corr", log_target = True, reduction = "mean"):
         
         # maximum mean discrepancy
         if kind == "mmd":
@@ -113,6 +113,14 @@ class UJDA(object):
             dot_product = torch.bmm(delta.view(batch_shape, 1, -1), delta.view(batch_shape, -1, 1))
             result = torch.clamp(torch.nn.functional.normalize(dot_product), min = 0, max = 100)
             return result
+        
+        if kind == "corr":
+           batch_shape = delta.shape[0]
+           output_shape = delta.shape[1]
+           product = torch.mean(torch.bmm(out1.view(batch_shape, -1, 1), out2.view(batch_shape, -1, 1)), axis=0)
+           final_result = torch.square(torch.div(torch.norm(product), 2.0 * output_shape))
+           print(final_result.shape)
+           return final_result
         
         # Kullback-Leibler divergence
         elif kind == "kld":
