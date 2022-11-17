@@ -227,6 +227,46 @@ class UJDA(object):
 
         return loss_dis_s, loss_dis_t
 
+    def get_additional_loss(self, inputs_source, inputs_target, kind = "mmd"):
+        source_features, _, outputs_classifier_s1, outputs_classifier_s2 = self.c_net(inputs_source)
+
+        target_features, _, outputs_classifier_t1, outputs_classifier_t2 = self.c_net(inputs_target)
+
+#         loss_dis_s = self.discrepancy(outputs_classifier_s1, outputs_classifier_s2)
+#         loss_dis_t = self.discrepancy(outputs_classifier_t1, outputs_classifier_t2)
+        
+        # maximum mean discrepancy
+        if kind == "mmd":
+            delta = torch.abs(torch.squeeze(source_features) - torch.squeeze(target_features))
+            batch_shape = delta.shape[0]
+            dot_product = torch.bmm(delta.view(batch_shape, 1, -1), delta.view(batch_shape, -1, 1))
+            result = torch.clamp(torch.nn.functional.normalize(dot_product), min = 0, max = 100)
+            return result
+        
+        if kind == "corr":
+           batch_shape = source_features.shape[0]
+           output_shape = source_features.shape[1]
+           product = torch.mean(torch.bmm(source_features.view(batch_shape, -1, 1), target_features.view(batch_shape, 1, -1)), axis=0)
+           return torch.clamp(torch.norm(product), min = 0, max = 100)
+          
+        # Kullback-Leibler divergence
+        elif kind == "kld":
+            
+            if not log_target: # default
+                loss_pointwise = source_features * (source_features.log() - target_features)
+            else:
+                loss_pointwise = source_features.exp() * (source_features - target_features)
+            if reduction == "mean":  # default
+                loss = loss_pointwise.mean()
+            elif reduction == "batchmean":  # mathematically correct
+                loss = loss_pointwise.sum() / target_features.size(0)
+            elif reduction == "sum":
+                loss = loss_pointwise.sum()
+            else:  # reduction == "none"
+                loss = loss_pointwise
+            
+            return torch.clamp(loss, min = 0, max = 100)
+    
     def predict(self, inputs):
         _, outputs_classifier_t, outputs_classifier1, outputs_classifier2 = self.c_net(inputs)
         return F.softmax(outputs_classifier_t, dim = 1), F.softmax(outputs_classifier1, dim = 1), F.softmax(outputs_classifier2, dim = 1)
