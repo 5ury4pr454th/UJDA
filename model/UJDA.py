@@ -115,8 +115,8 @@ class UJDA(object):
             return result
         
         if kind == "corr":
-           batch_shape = delta.shape[0]
-           output_shape = delta.shape[1]
+           batch_shape = out1.shape[0]
+           output_shape = out1.shape[1]
            product = torch.mean(torch.bmm(out1.view(batch_shape, -1, 1), out2.view(batch_shape, -1, 1)), axis=0)
            final_result = torch.square(torch.div(torch.norm(product), 2.0 * output_shape))
            print(final_result.shape)
