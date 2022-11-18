@@ -104,7 +104,7 @@ class UJDA(object):
         if self.use_gpu:
             self.c_net = self.c_net.cuda()
 
-    def discrepancy(self, out1, out2, kind = "corr", log_target = True, reduction = "mean"):
+    def discrepancy(self, out1, out2, kind = "def", log_target = True, reduction = "mean"):
         
         # maximum mean discrepancy
         if kind == "mmd":
