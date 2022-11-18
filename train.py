@@ -194,6 +194,7 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
 
             classifier_loss = model_instance.get_loss_classifier(inputs_source, labels_source)
             entropy_loss = model_instance.get_loss_entropy(inputs_target)
+            domain_loss = model_instance.get_additional_loss(inputs_source, inputs_target)
             total_loss = classifier_loss +  lambda_svat * source_vat_loss + lambda_t *(entropy_loss + lambda_tvat * target_vat_loss)
             total_loss.backward()
             optimizer_c_net.step()
