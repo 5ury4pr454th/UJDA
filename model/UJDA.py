@@ -104,41 +104,8 @@ class UJDA(object):
         if self.use_gpu:
             self.c_net = self.c_net.cuda()
 
-    def discrepancy(self, out1, out2, kind = "def", log_target = True, reduction = "mean"):
-        
-        # maximum mean discrepancy
-        if kind == "mmd":
-            delta = torch.abs(torch.squeeze(out1) - torch.squeeze(out2))
-            batch_shape = delta.shape[0]
-            dot_product = torch.bmm(delta.view(batch_shape, 1, -1), delta.view(batch_shape, -1, 1))
-            result = torch.clamp(torch.nn.functional.normalize(dot_product), min = 0, max = 100)
-            return result
-        
-        if kind == "corr":
-           batch_shape = out1.shape[0]
-           output_shape = out1.shape[1]
-           product = torch.mean(torch.bmm(out1.view(batch_shape, -1, 1), out2.view(batch_shape, 1, -1)), axis=0)
-           return torch.clamp(torch.norm(product), min = 0, max = 100)
-          
-        # Kullback-Leibler divergence
-        elif kind == "kld":
-            
-            if not log_target: # default
-                loss_pointwise = out1 * (out1.log() - out2)
-            else:
-                loss_pointwise = out1.exp() * (out1 - out2)
-            if reduction == "mean":  # default
-                loss = loss_pointwise.mean()
-            elif reduction == "batchmean":  # mathematically correct
-                loss = loss_pointwise.sum() / out2.size(0)
-            elif reduction == "sum":
-                loss = loss_pointwise.sum()
-            else:  # reduction == "none"
-                loss = loss_pointwise
-        
-        # default
-        else:
-            return torch.mean(torch.abs(F.softmax(out1, dim =1) - F.softmax(out2, dim = 1)))
+    def discrepancy(self, out1, out2):
+        return torch.mean(torch.abs(F.softmax(out1, dim =1) - F.softmax(out2, dim = 1)))
     
     def vat(self, inputs, radius):
         eps = Variable(torch.randn(inputs.data.size()).cuda())
@@ -229,13 +196,11 @@ class UJDA(object):
 
     def get_additional_loss(self, inputs_source, inputs_target, kind = "mmd"):
         source_features, _, outputs_classifier_s1, outputs_classifier_s2 = self.c_net(inputs_source)
-
         target_features, _, outputs_classifier_t1, outputs_classifier_t2 = self.c_net(inputs_target)
-
-#         loss_dis_s = self.discrepancy(outputs_classifier_s1, outputs_classifier_s2)
-#         loss_dis_t = self.discrepancy(outputs_classifier_t1, outputs_classifier_t2)
+        log_target = True
+        reduction = "mean"
         
-        # maximum mean discrepancy
+        # maximum mean discrepancy this should me maximized
         if kind == "mmd":
             delta = torch.abs(torch.squeeze(source_features) - torch.squeeze(target_features))
             batch_shape = delta.shape[0]
@@ -243,7 +208,7 @@ class UJDA(object):
             result = torch.clamp(torch.nn.functional.normalize(dot_product), min = 0, max = 100)
             return result
         
-        if kind == "corr":
+        elif kind == "corr":
            batch_shape = source_features.shape[0]
            output_shape = source_features.shape[1]
            product = torch.mean(torch.bmm(source_features.view(batch_shape, -1, 1), target_features.view(batch_shape, 1, -1)), axis=0)
@@ -266,6 +231,9 @@ class UJDA(object):
                 loss = loss_pointwise
             
             return torch.clamp(loss, min = 0, max = 100)
+        
+        else:
+            return 0.
     
     def predict(self, inputs):
         _, outputs_classifier_t, outputs_classifier1, outputs_classifier2 = self.c_net(inputs)
