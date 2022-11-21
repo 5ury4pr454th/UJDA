@@ -105,7 +105,7 @@ def save_features(model_instance, input_loader, filename):
 
 
 def train(model_instance, train_source_loader, train_target_loader, test_target_loader, test_source_loader, group_ratios,
-          max_iter, optimizer, eval_interval, lr_scheduler, num_k = 4, iter_classifier = 1000):
+          max_iter, optimizer, eval_interval, lr_scheduler, num_k = 4, iter_classifier = 10):
     model_instance.set_train(True)
     print("start train...")
     writer = SummaryWriter()
@@ -176,6 +176,7 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
             lambda_t = 0.1
             lambda_svat = 1.0
             lambda_tvat = 10.0
+            lambda_add = 1.
 
             source_vat = model_instance.vat(inputs_source, 0.5)
             optimizer_c_net.zero_grad()
@@ -194,9 +195,8 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
 
             classifier_loss = model_instance.get_loss_classifier(inputs_source, labels_source)
             entropy_loss = model_instance.get_loss_entropy(inputs_target)
-            lambda_add = 1.
             domain_loss = model_instance.get_additional_loss(inputs_source, inputs_target)
-            total_loss = classifier_loss +  lambda_svat * source_vat_loss + lambda_t *(entropy_loss + lambda_tvat * target_vat_loss) + domain_loss
+            total_loss = classifier_loss +  lambda_svat * source_vat_loss + lambda_t *(entropy_loss + lambda_tvat * target_vat_loss) + (lambda_add * domain_loss)
             total_loss.backward()
             optimizer_c_net.step()
             optimizer_classifier.step()
@@ -220,7 +220,8 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
             joints1_loss, joints2_loss = model_instance.get_loss_source_joint(inputs_source, labels_source)
             jointt1_loss, jointt2_loss = model_instance.get_loss_target_joint(inputs_target)
             loss_dis_s, loss_dis_t = model_instance.get_loss_discrepancy(inputs_source, inputs_target)
-            total_loss = lambda_dsc * (joints1_loss + joints2_loss) + lambda_dtc * (jointt1_loss + jointt2_loss) - lambda_d * (loss_dis_s + loss_dis_t)
+            domain_loss = model_instance.get_additional_loss(inputs_source, inputs_target)
+            total_loss = lambda_dsc * (joints1_loss + joints2_loss) + lambda_dtc * (jointt1_loss + jointt2_loss) - lambda_d * (loss_dis_s + loss_dis_t) + (lambda_add * domain_loss)
             total_loss.backward()
             optimizer_classifier1.step()
             optimizer_classifier2.step()
@@ -241,7 +242,8 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
             for i in range(num_k):
                 joints1_loss, joints2_loss, jointt1_loss, jointt2_loss = model_instance.get_loss_adv(inputs_source, inputs_target, labels_source)
                 loss_dis_s, loss_dis_t = model_instance.get_loss_discrepancy(inputs_source, inputs_target)
-                total_loss = lambda_dsa*(joints1_loss + joints2_loss) + lambda_dta*(jointt1_loss + jointt2_loss) + loss_dis_s + loss_dis_t
+                domain_loss = model_instance.get_additional_loss(inputs_source, inputs_target)
+                total_loss = lambda_dsa*(joints1_loss + joints2_loss) + lambda_dta*(jointt1_loss + jointt2_loss) + loss_dis_s + loss_dis_t + (lambda_add * domain_loss)
                 total_loss.backward()
                 optimizer_c_net.step()
                 optimizer_c_net.zero_grad()
@@ -330,5 +332,5 @@ if __name__ == '__main__':
                                 init_lr=cfg.init_lr)
 
     train(model_instance, train_source_loader, train_target_loader, test_target_loader, test_source_loader, group_ratios,
-              max_iter=10000, optimizer=optimizer, eval_interval=50, lr_scheduler = lr_scheduler)
+              max_iter=100, optimizer=optimizer, eval_interval=5, lr_scheduler = lr_scheduler)
 
