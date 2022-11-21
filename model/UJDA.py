@@ -205,7 +205,7 @@ class UJDA(object):
             delta = torch.abs(torch.squeeze(source_features) - torch.squeeze(target_features))
             batch_shape = delta.shape[0]
             dot_product = torch.bmm(delta.view(batch_shape, 1, -1), delta.view(batch_shape, -1, 1))
-            result = torch.clamp(torch.nn.functional.normalize(dot_product), min = 0, max = 100)
+            result = torch.clamp(torch.mean(torch.nn.functional.normalize(dot_product)), min = 0, max = 100)
             return result
         
         elif kind == "corr":
