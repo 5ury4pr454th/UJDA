@@ -105,7 +105,7 @@ def save_features(model_instance, input_loader, filename):
 
 
 def train(model_instance, train_source_loader, train_target_loader, test_target_loader, test_source_loader, group_ratios,
-          max_iter, optimizer, eval_interval, lr_scheduler, num_k = 4, iter_classifier = 10):
+          max_iter, optimizer, eval_interval, lr_scheduler, num_k = 4, iter_classifier = 5000):
     model_instance.set_train(True)
     print("start train...")
     writer = SummaryWriter()
@@ -176,7 +176,7 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
             lambda_t = 0.1
             lambda_svat = 1.0
             lambda_tvat = 10.0
-            lambda_add = 1.
+            lambda_add = 10.
 
             source_vat = model_instance.vat(inputs_source, 0.5)
             optimizer_c_net.zero_grad()
@@ -206,8 +206,7 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
             optimizer_classifier1.zero_grad()
             optimizer_classifier2.zero_grad()
 
-
-            if iter_num % 25 == 0:
+            if iter_num % 200 == 0:
                 eval_result_s = evaluate(model_instance, test_source_loader)
                 eval_result_t = evaluate(model_instance, test_target_loader)
                 print('\n classifier_loss: {:.4f}, entropy_loss:{:.4f}, source_vat_loss:{:.4f}, target_vat_loss:{:.4f}, val acc_s: {:.4f}, val acc_t: {:.4f}'.format(classifier_loss, entropy_loss, source_vat_loss, target_vat_loss, eval_result_s['accuracy'], eval_result_t['accuracy']))
@@ -230,7 +229,7 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
             optimizer_classifier1.zero_grad()
             optimizer_classifier2.zero_grad()
 
-            if iter_num % 25 == 0:
+            if iter_num % 200 == 0:
                 print(
                     '\n joints1_loss: {:.4f}, joints2_loss:{:.4f}, jointt1_loss:{:.4f}, jointt2_loss:{:.4f}, loss_dis_s: {:.4f}, loss_dis_t: {:.4f}'.format(
                         joints1_loss, joints2_loss, jointt1_loss, jointt2_loss, loss_dis_s,loss_dis_t))
@@ -334,5 +333,4 @@ if __name__ == '__main__':
                                 init_lr=cfg.init_lr)
 
     train(model_instance, train_source_loader, train_target_loader, test_target_loader, test_source_loader, group_ratios,
-              max_iter=100, optimizer=optimizer, eval_interval=5, lr_scheduler = lr_scheduler)
-
+              max_iter=10000, optimizer=optimizer, eval_interval=250, lr_scheduler = lr_scheduler)
