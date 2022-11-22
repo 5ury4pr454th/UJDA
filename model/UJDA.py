@@ -212,6 +212,7 @@ class UJDA(object):
            batch_shape = source_features.shape[0]
            output_shape = source_features.shape[1]
            product = torch.mean(torch.bmm(source_features.view(batch_shape, -1, 1), target_features.view(batch_shape, 1, -1)), axis=0)
+           product = torch.nn.functional.normalize(product)
            return torch.clamp(torch.norm(product), min = 0, max = 100)
           
         # Kullback-Leibler divergence
