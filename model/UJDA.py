@@ -194,7 +194,7 @@ class UJDA(object):
 
         return loss_dis_s, loss_dis_t
 
-    def get_additional_loss(self, inputs_source, inputs_target, kind = "mmd"):
+    def get_additional_loss(self, inputs_source, inputs_target, kind = "corr"):
         source_features, _, outputs_classifier_s1, outputs_classifier_s2 = self.c_net(inputs_source)
         target_features, _, outputs_classifier_t1, outputs_classifier_t2 = self.c_net(inputs_target)
         log_target = True
