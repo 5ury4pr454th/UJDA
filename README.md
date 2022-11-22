@@ -1,30 +1,37 @@
-# UJDA
-Unsupervised domain adaptation with unified joint
-distribution alignment
+# Dual Adversarial Domain Adaptation
 
-## Prerequisites:
+This is the readme file for Deep Learning Course Project
 
-* Python3
-* PyTorch ==0.4.1 (with suitable CUDA and CuDNN version)
-* torchvision == 0.2.0
-* Numpy
-* tqdm
+---
 
-## Dataset:
+##### Dependencies
 
-You need to modify the path of the image in every ".txt" in "./data".
+All dependencies and libraries are mentioned in the text file - **requirements.txt**
+Use pip to install all requirements.
 
-## Training:
-run :
+----
 
-    python train.py --config ../config/dann.yml   --dataset Office-31   --src_address ../data/amazon.txt    --tgt_address     ../data/dslr.txt  --src_test_address ../data/amazon.txt
+##### Dataset Details
 
-## Citation:
-If you use this code for your research, please consider citing:
+Primary Dataset used is [Office 31](https://faculty.cc.gatech.edu/~judy/domainadapt/)
 
-```
+All the training data is used for training.
+Validation split is not mentioned in the source repository. Instead the filenames for the split are in text files in /data folder.
+All files in target folder are used for testing.
 
-```
+---
 
-## Contact
-If you have any problem about our code, feel free to contact yaoyueduzhen@outlook.com.
+### Important!!!
+
+There is no need for a train.sh file since the bash script is already embedded in the jupyter notebook. This project has been implemented with Google Colab since the server wasn't compatible with our code. Nevertheless, a train.sh file is also present in the folder.
+
+---
+
+#### Source Repo
+
+We would like to acknowledge the author of the source repository of [UJDA](https://github.com/yaoyueduzhen/UJDA)
+
+---
+
+
+
