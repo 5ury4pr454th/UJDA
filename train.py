@@ -207,11 +207,11 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
             optimizer_classifier2.zero_grad()
 
 
-            if iter_num % 200 == 0:
+            if iter_num % 25 == 0:
                 eval_result_s = evaluate(model_instance, test_source_loader)
                 eval_result_t = evaluate(model_instance, test_target_loader)
                 print('\n classifier_loss: {:.4f}, entropy_loss:{:.4f}, source_vat_loss:{:.4f}, target_vat_loss:{:.4f}, val acc_s: {:.4f}, val acc_t: {:.4f}'.format(classifier_loss, entropy_loss, source_vat_loss, target_vat_loss, eval_result_s['accuracy'], eval_result_t['accuracy']))
-
+                print('Domain Loss = {:.4f}'.format(domain_loss))
 
             lambda_dsc = 1.0
             lambda_dtc = 1.0
@@ -230,11 +230,12 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
             optimizer_classifier1.zero_grad()
             optimizer_classifier2.zero_grad()
 
-            if iter_num % 200 == 0:
+            if iter_num % 25 == 0:
                 print(
                     '\n joints1_loss: {:.4f}, joints2_loss:{:.4f}, jointt1_loss:{:.4f}, jointt2_loss:{:.4f}, loss_dis_s: {:.4f}, loss_dis_t: {:.4f}'.format(
                         joints1_loss, joints2_loss, jointt1_loss, jointt2_loss, loss_dis_s,loss_dis_t))
-
+                print('Domain Loss = {:.4f}'.format(domain_loss))
+                
             #step3:
             lambda_dsa = 0.1
             lambda_dta = 0.1
@@ -261,6 +262,7 @@ def train(model_instance, train_source_loader, train_target_loader, test_target_
                 print(
                     '\n joints1_loss: {:.4f}, joints2_loss:{:.4f}, jointt1_loss:{:.4f}, jointt2_loss:{:.4f}, loss_dis_s: {:.4f}, loss_dis_t: {:.4f}, current accuracy : {:.4f}, best accuracy:{}'.format(
                         joints1_loss, joints2_loss, jointt1_loss, jointt2_loss, loss_dis_s, loss_dis_t, eval_result['accuracy'], best_acc))
+                print('Domain Loss = {:.4f}'.format(domain_loss))
 
             iter_num += 1
             total_progress_bar.update(1)
